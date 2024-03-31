@@ -13,18 +13,35 @@ class AuthController {
     'Content-Type': 'application/json; charset=UTF-8',
   };
 
-  Future<String> updateQrCode() async {
-    final prefs = await SharedPreferences.getInstance();
-    try {
-      String? id = prefs.getString("id");
-      var response = await http.post(
+  Future<String> getQrCode() async {
+  final prefs = await SharedPreferences.getInstance();
+  try {
+    String? id = prefs.getString("id");
+    var response = await http.post(
       Uri.parse("$url/qr_code/"),
-      headers: headers, body: jsonEncode({"user": id})); 
-      return response.body;
-    } catch (e) {
-      throw Exception('while get update new qr $e');
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "X-CSRFToken": "Reb04mZGrBoVEF92aEJhNBKQsFxdKGCPXrYMmmd1U7qZwSx08VvSmpAVoDc7fFZd" // Replace with your actual CSRF token
+      },
+      body: jsonEncode({"user": id}),
+    );
+
+    if (response.statusCode == 201) {
+      var decodedResponse = jsonDecode(response.body);
+      
+      // Make sure the key 'code' matches the key in your actual response
+      String qrCode = decodedResponse['code'];
+      return qrCode;
+    } else {
+      // Consider logging response body for better debugging
+      print('Server response: ${response.body}');
+      throw Exception('Failed to load QR Code: Server responded with status code ${response.statusCode}');
     }
+  } catch (e) {
+    throw Exception('Error while getting QR code: $e');
   }
+}
 
   Future<void> updateAccessToken()async{
     final prefs = await SharedPreferences.getInstance();
@@ -47,6 +64,7 @@ class AuthController {
 
       var result = jsonDecode(response.body);
       prefs.setString("accessToken", result["access_token"]);
+      prefs.setBool("isLoggedin", true);
     } catch (e) {
       throw Exception("While get new accestoke$e");
     }
@@ -80,6 +98,7 @@ class AuthController {
     final prefs = await SharedPreferences.getInstance();
     try {
         prefs.remove("accessToken");
+        prefs.setBool("isLoggedIn", false);
     } catch (e) {
       throw Exception(e);
     }
