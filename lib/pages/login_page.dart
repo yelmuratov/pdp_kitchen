@@ -62,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     obscureText: true,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: isLoading ? null : _handleLogin,
                     style: ElevatedButton.styleFrom(
@@ -83,6 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
               const SizedBox(height: 20),
+              _Footer()
             ],
           ),
         ),
@@ -132,3 +133,26 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
+Widget _Footer() {
+    return Container(
+        child: Center(
+          child: RichText(
+            text: TextSpan(
+              style: TextStyle(fontSize: 20),
+              children: <TextSpan>[
+                TextSpan(
+                  text: 'by Aral',
+                  style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: 'Tech',
+                  style: TextStyle(color: Colors.blue,fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+  }
+
