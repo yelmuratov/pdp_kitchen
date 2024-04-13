@@ -1,7 +1,8 @@
-import 'dart:async'; // Import needed for Timer
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pdp_kitchen/controllers/auth_controller.dart';
 import 'package:pdp_kitchen/pages/login_page.dart';
+import 'package:pdp_kitchen/pages/user_info.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,7 +18,6 @@ class _UserPageState extends State<UserPage> {
   String qrData = "";
   Timer? _qrCodeTimer;
   Timer? _accessTokenTimer;
-  DateTime _lastActivityTime = DateTime.now();
 
   @override
   void initState() {
@@ -59,42 +59,77 @@ class _UserPageState extends State<UserPage> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => UserInfoPage()));
+      },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Welcome to Student Page!'),
+          title: const Text('Welcome to Student Page!',style: TextStyle(color: Colors.white),),
+          backgroundColor: Colors.blue, // Custom color for AppBar
           actions: [
             IconButton(
-              icon: const Icon(Icons.exit_to_app),
+              icon: Icon(Icons.exit_to_app, color: Colors.white),
               onPressed: _handleLogout,
             ),
+            SizedBox(width: 10), // Add spacing between icons
           ],
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              if (qrData.isNotEmpty)
-                QrImageView(
-                  data: qrData,
-                  version: QrVersions.auto,
-                  size: 350.0,
-                )
-              else
-                const CircularProgressIndicator(),
-              const SizedBox(height: 20),
-              const Text(
-                'Your QR code!',
-                style: TextStyle(fontSize: 30),
-                textAlign: TextAlign.center,
-              ),
-            ],
+        backgroundColor: Colors.white, // Custom color for the background
+        body: Container(
+          color: Colors.lightBlue[50], // Custom color for the body background
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                AnimatedContainer(
+                  duration: Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                  height: 150,
+                  width: 150,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Colors.blue, Colors.purple],
+                    ),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.account_circle,
+                      size: 120,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  "Profile",
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.blue),
+                ),
+                const SizedBox(height: 20),
+                qrData.isNotEmpty
+                    ? QrImageView(
+                        data: qrData,
+                        version: QrVersions.auto,
+                        size: 400.0,
+                      )
+                    : CircularProgressIndicator(),
+                const SizedBox(height: 20),
+                Text(
+                  'Your QR code!',
+                  style: TextStyle(fontSize: 24,fontWeight: FontWeight.bold, color: Colors.blue),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  void _handleLogout() async{
+  void _handleLogout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const LoginPage()));
